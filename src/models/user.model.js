@@ -33,10 +33,12 @@ const userSchema = new Schema({
     coverImage:{
         type: String, //cloudinary url
     },
-    watchHistory:{
-        type:Schema.Types.ObjectId,
-        ref:"Video"
-    },
+    watchHistory: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "Video"
+        }
+    ],
     password:{
         type: String,
         required: [true, 'password is required']
@@ -47,11 +49,11 @@ const userSchema = new Schema({
 },{ timestamps: true})
 
 userSchema.pre("save",async function(next){
-    if(this.isModified("password"))
-        {
-    this.password  = bcrypt.hash(this.password,10)
+    if(!this.isModified("password")) return next();
+        
+    this.password  = await bcrypt.hash(this.password,10)
     next()
-        }
+        
 })
 //https://mongoosejs.com/docs/middleware.html#pre
 //used fn here cuz arror fn se context ni milta => cannot use this. from the document
